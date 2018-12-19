@@ -1,0 +1,49 @@
+AOS meta layer
+==============
+
+This meta layer contains recipes for AOS components such as:
+* aos-telementryemulator - telemtry emulator script;
+* aos-vis - AOS vehicle information service;
+* aos-vis-storageadapter - VIS storage adapter;
+* aos-vis-telementryemulator - VIS telemetry emulator adapter;
+* aos-servicemanager - AOS service manager;
+
+Dependencies
+============
+
+This layer depends on:
+
+  URI: git@github.com:madisongh/meta-golang.git
+  branch: rocko
+
+Table of Contents
+=================
+
+  1. Adding the aos layer to your build
+  2. Misc
+
+
+1. Adding the aos layer to your build
+=====================================
+
+In order to use this layer, you need to make the build system aware of
+it.
+
+Assuming the aos layer exists at the top-level of your
+yocto build tree, you can add it to the build system by adding the
+location of the aos layer to bblayers.conf, along with any
+other layers needed. e.g.:
+
+  BBLAYERS ?= " \
+    /path/to/yocto/meta \
+    /path/to/yocto/meta-poky \
+    /path/to/yocto/meta-yocto-bsp \
+    /path/to/yocto/meta-aos \
+    "
+
+
+2. Misc
+=======
+
+Set GO_LINKSHARED = "" in your image configuration in order to disable shared
+link for go packages. As go plugins doesn't work with shared link.
