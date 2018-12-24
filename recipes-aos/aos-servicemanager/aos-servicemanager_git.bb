@@ -33,8 +33,23 @@ DEPENDS += "\
 "
 
 RDEPENDS_${PN} += "\
+    ca-certificates \
     github.com-genuinetools-netns \
     github.com-opencontainers-runc \
+    iptables \
+    openssl \
+    python3 \
+    python3-compression \
+    python3-crypt \
+    python3-enum \
+    python3-json \
+    python3-misc \
+    python3-selectors \
+    python3-shell \
+    python3-six \
+    python3-threading \
+    python3-websocket-client \
+    quota \
     wondershaper \
 "
 
