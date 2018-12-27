@@ -11,3 +11,5 @@ LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=b355a61a394a504dacde901c
 S = "${WORKDIR}/git"
 
 do_compile[noexec] = "1"
+
+PTEST_ENABLED = ""

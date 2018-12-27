@@ -11,3 +11,5 @@ S = "${WORKDIR}/git"
 RDEPENDS_${PN}-dev += "bash"
 
 do_compile[noexec] = "1"
+
+PTEST_ENABLED = ""

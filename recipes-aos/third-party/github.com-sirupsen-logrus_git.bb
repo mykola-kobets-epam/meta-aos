@@ -15,3 +15,5 @@ DEPENDS += "\
 "
 
 do_compile[noexec] = "1"
+
+PTEST_ENABLED = ""
