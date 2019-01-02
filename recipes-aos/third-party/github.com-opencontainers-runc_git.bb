@@ -11,3 +11,5 @@ LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=435b266b3899aa8a959f17d4
 S = "${WORKDIR}/git"
 
 RDEPENDS_${PN}-dev += "bash"
+
+PTEST_ENABLED = ""
