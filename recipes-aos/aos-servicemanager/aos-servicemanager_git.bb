@@ -33,6 +33,7 @@ DEPENDS += "\
 "
 
 RDEPENDS_${PN} += "\
+    libvis \
     ca-certificates \
     github.com-genuinetools-netns \
     github.com-opencontainers-runc \
