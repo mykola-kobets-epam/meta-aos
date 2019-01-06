@@ -33,11 +33,11 @@ DEPENDS += "\
 "
 
 RDEPENDS_${PN} += "\
-    libvis \
     ca-certificates \
     github.com-genuinetools-netns \
     github.com-opencontainers-runc \
     iptables \
+    libvis \
     openssl \
     python3 \
     python3-compression \
@@ -45,6 +45,7 @@ RDEPENDS_${PN} += "\
     python3-enum \
     python3-json \
     python3-misc \
+    python3-requests \
     python3-selectors \
     python3-shell \
     python3-six \

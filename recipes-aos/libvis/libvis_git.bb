@@ -9,7 +9,3 @@ SRCREV = "${AUTOREV}"
 S = "${WORKDIR}/git"
 
 inherit setuptools3
-
-RDEPENDS_${PN} += "\
-    python3-requests \
-"
