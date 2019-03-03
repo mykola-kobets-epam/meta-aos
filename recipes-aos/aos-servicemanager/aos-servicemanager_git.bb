@@ -21,6 +21,7 @@ DEPENDS += "\
     github.com-cavaliercoder-grab \
     github.com-coreos-go-iptables \
     github.com-coreos-go-systemd \
+    github.com-coreos-pkg \
     github.com-fsnotify-fsnotify \
     github.com-godbus-dbus \
     github.com-google-uuid \
