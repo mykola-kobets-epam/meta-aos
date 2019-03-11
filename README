@@ -4,8 +4,6 @@ AOS meta layer
 This meta layer contains recipes for AOS components such as:
 * aos-telementryemulator - telemtry emulator script;
 * aos-vis - AOS vehicle information service;
-* aos-vis-storageadapter - VIS storage adapter;
-* aos-vis-telementryemulator - VIS telemetry emulator adapter;
 * aos-servicemanager - AOS service manager;
 
 Dependencies
