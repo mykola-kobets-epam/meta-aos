@@ -7,7 +7,7 @@ inherit go
 SRCREV = "${AUTOREV}"
 SRC_URI = "git://${GO_IMPORT};protocol=https"
 LICENSE = "BSD-2-Clause"
-LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=29358571796140f6172846eac9be80d2"
+LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=7444f6ea1dfceff26373f42800a8a72c"
 S = "${WORKDIR}/git"
 
 do_compile[noexec] = "1"
