@@ -2,17 +2,9 @@ AOS meta layer
 ==============
 
 This meta layer contains recipes for AOS components such as:
-* aos-telementryemulator - telemtry emulator script;
+* telemetry-emulator - telemetry emulator script;
 * aos-vis - AOS vehicle information service;
 * aos-servicemanager - AOS service manager;
-
-Dependencies
-============
-
-This layer depends on:
-
-  URI: git@github.com:madisongh/meta-golang.git
-  branch: rocko
 
 Table of Contents
 =================
