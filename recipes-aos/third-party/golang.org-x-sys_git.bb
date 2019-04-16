@@ -10,6 +10,8 @@ LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=5d4950ecb7b26d2c5e4e7b4e0dd74707"
 S = "${WORKDIR}/git"
 
+RDEPENDS_${PN}-dev += "bash"
+
 do_compile[noexec] = "1"
 
 PTEST_ENABLED = ""
