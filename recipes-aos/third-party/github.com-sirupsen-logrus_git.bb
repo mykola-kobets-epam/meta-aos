@@ -11,6 +11,7 @@ LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=8dadfef729c08ec4e631c4f6
 S = "${WORKDIR}/git"
 
 DEPENDS += "golang.org-x-crypto"
+RDEPENDS_${PN}-dev += "bash"
 
 do_compile[noexec] = "1"
 
