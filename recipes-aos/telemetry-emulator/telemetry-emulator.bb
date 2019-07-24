@@ -14,16 +14,13 @@ S = "${WORKDIR}/git"
 
 RDEPENDS_${PN} = " \
     python3 \
-    python3-argparse \
+    python3-core \
     python3-compression \
     python3-datetime \
     python3-json \
     python3-misc \
     python3-netserver \
-    python3-selectors \
     python3-shell \
-    python3-signal \
-    python3-textutils \
     python3-threading \
 "
 

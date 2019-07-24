@@ -21,6 +21,7 @@ GO_INSTALL = "${GO_IMPORT}"
 GO_LDFLAGS += '-ldflags "-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}/.git describe --tags --always`"'
 
 DEPENDS += "\
+    gitpct.epam.com-epmd-aepr-aos-servicemanager \
     github.com-godbus-dbus \
     github.com-gorilla-websocket \
     github.com-sirupsen-logrus \
