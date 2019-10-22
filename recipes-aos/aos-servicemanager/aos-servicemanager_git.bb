@@ -31,6 +31,8 @@ DEPENDS += "\
     github.com-shirou-gopsutil \
     github.com-sirupsen-logrus \
     github.com-streadway-amqp \
+    gitpct.epam.com-epmd-aepr-aos-updatemanager \
+    gitpct.epam.com-epmd-aepr-aos-vis \
 "
 
 RDEPENDS_${PN} += "\
@@ -38,20 +40,7 @@ RDEPENDS_${PN} += "\
     github.com-genuinetools-netns \
     github.com-opencontainers-runc \
     iptables \
-    libvis \
     openssl \
-    python3 \
-    python3-compression \
-    python3-crypt \
-    python3-enum \
-    python3-json \
-    python3-misc \
-    python3-requests \
-    python3-selectors \
-    python3-shell \
-    python3-six \
-    python3-threading \
-    python3-websocket-client \
     quota \
     wondershaper \
 "
