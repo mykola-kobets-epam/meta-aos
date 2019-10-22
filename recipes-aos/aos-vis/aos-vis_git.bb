@@ -11,7 +11,7 @@ SRC_URI = "\
 
 inherit go
 
-PLUGINS ?= ""
+PLUGINS ?= "storageadapter telemetryemulatoradapter renesassimulatoradapter"
 
 S = "${WORKDIR}/git"
 
@@ -21,15 +21,14 @@ GO_INSTALL = "${GO_IMPORT}"
 GO_LDFLAGS += '-ldflags "-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}/.git describe --tags --always`"'
 
 DEPENDS += "\
-    gitpct.epam.com-epmd-aepr-aos-servicemanager \
     github.com-godbus-dbus \
     github.com-gorilla-websocket \
     github.com-sirupsen-logrus \
+    gitpct.epam.com-epmd-aepr-aos-servicemanager \
 "
 
 RDEPENDS_${PN} += "\
     ca-certificates \
-    iptables \
     openssl \
 "
 
