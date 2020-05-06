@@ -2,47 +2,33 @@ DESCRIPTION = "AOS Service Manager"
 
 LICENSE = "CLOSED"
 
-GO_IMPORT = "gitpct.epam.com/epmd-aepr/aos_servicemanager"
+GO_IMPORT = "aos_servicemanager"
 
 SRCREV = "${AUTOREV}"
-SRC_URI = "git://git@${GO_IMPORT}.git;protocol=ssh"
+SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;protocol=ssh"
 
 inherit go
 
-S = "${WORKDIR}/git"
-
-GO_INSTALL = "${GO_IMPORT}"
+# SM crashes if dynamic link selected, disable dynamic link till the problem is solved
+GO_LINKSHARED = ""
 
 # embed version
-GO_LDFLAGS += '-ldflags "-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}/.git describe --tags --always`"'
+GO_LDFLAGS += '-ldflags="-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}/.git describe --tags --always` ${GO_RPATH} ${GO_LINKMODE} -extldflags '${GO_EXTLDFLAGS}'"'
 
-DEPENDS += "\
-    github.com-anexia-it-fsquota \
-    github.com-cavaliercoder-grab \
-    github.com-coreos-go-iptables \
-    github.com-coreos-go-systemd \
-    github.com-coreos-pkg \
-    github.com-fsnotify-fsnotify \
-    github.com-godbus-dbus \
-    github.com-google-uuid \
-    github.com-gorilla-websocket \
-    github.com-mattn-go-sqlite3 \
-    github.com-opencontainers-runtime-spec \
-    github.com-shirou-gopsutil \
-    github.com-sirupsen-logrus \
-    github.com-streadway-amqp \
-    gitpct.epam.com-epmd-aepr-aos-updatemanager \
-    gitpct.epam.com-epmd-aepr-aos-vis \
-"
+# this flag is requied when GO_LINKSHARED is enabled
+# LDFLAGS += "-lpthread"
+
+DEPENDS = "systemd"
 
 RDEPENDS_${PN} += "\
     ca-certificates \
-    github.com-genuinetools-netns \
-    github.com-opencontainers-runc \
     iptables \
+    netns \
     openssl \
     quota \
+    virtual/runc \
     wondershaper \
 "
 
-RDEPENDS_${PN}-dev += "bash"
+RDEPENDS_${PN}-dev += " bash make"
+RDEPENDS_${PN}-staticdev += " bash make"

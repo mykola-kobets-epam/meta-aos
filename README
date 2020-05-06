@@ -35,5 +35,5 @@ other layers needed. e.g.:
 2. Misc
 =======
 
-Set GO_LINKSHARED = "" in your image configuration in order to disable shared
-link for go packages. As go plugins doesn't work with shared link.
+Set PREFERRED_PROVIDER_virtual/runc = "runc-opencontainers" to build runc from
+opencontainers.
