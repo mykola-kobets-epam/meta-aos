@@ -17,8 +17,6 @@ GO_LINKSHARED = ""
 # embed version
 GO_LDFLAGS += '-ldflags="-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}/.git describe --tags --always` ${GO_RPATH} ${GO_LINKMODE} -extldflags '${GO_EXTLDFLAGS}'"'
 
-GOBUILDFLAGS += "-tags '${@' '.join(['WITH_' + plugin for plugin in d.getVar('PLUGINS', True).upper().split()])}'"
-
 RDEPENDS_${PN} += "\
     ca-certificates \
     openssl \

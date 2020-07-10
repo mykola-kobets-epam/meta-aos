@@ -9,15 +9,11 @@ SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;protocol=ssh"
 
 inherit go
 
-PLUGINS ?= "testmodule sshmodule"
-
 # SM crashes if dynamic link selected, disable dynamic link till the problem is solved
 GO_LINKSHARED = ""
 
 # embed version
 GO_LDFLAGS += '-ldflags="-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}/.git describe --tags --always` ${GO_RPATH} ${GO_LINKMODE} -extldflags '${GO_EXTLDFLAGS}'"'
-
-GOBUILDFLAGS += "-tags '${@' '.join(['WITH_' + plugin for plugin in d.getVar('PLUGINS', True).upper().split()])}'"
 
 # this flag is requied when GO_LINKSHARED is enabled
 # LDFLAGS += "-lpthread"
