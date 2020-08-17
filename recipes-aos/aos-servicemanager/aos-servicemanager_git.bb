@@ -23,7 +23,6 @@ DEPENDS = "systemd"
 RDEPENDS_${PN} += "\
     ca-certificates \
     iptables \
-    netns \
     openssl \
     quota \
     virtual/runc \
