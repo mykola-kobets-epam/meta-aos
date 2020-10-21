@@ -4,8 +4,9 @@ LICENSE = "CLOSED"
 
 GO_IMPORT = "aos_servicemanager"
 
+BRANCH = "master"
 SRCREV = "${AUTOREV}"
-SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;protocol=ssh"
+SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;branch=${BRANCH};protocol=ssh"
 
 inherit go
 
