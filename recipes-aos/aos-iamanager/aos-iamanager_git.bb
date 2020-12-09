@@ -1,8 +1,8 @@
-DESCRIPTION = "AOS Certificate Manager"
+DESCRIPTION = "AOS Identity and Access Manager"
 
 LICENSE = "CLOSED"
 
-GO_IMPORT = "aos_certificatemanager"
+GO_IMPORT = "aos_iamanager"
 
 BRANCH = "master"
 SRCREV = "${AUTOREV}"
@@ -10,8 +10,8 @@ SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;branch=${BRANCH}
 
 inherit go
 
-AOS_CM_CERT_MODULES ??= "swmodule"
-AOS_CM_CUSTOM_CERT_MODULES ??= ""
+AOS_IAM_CERT_MODULES ??= "swmodule"
+AOS_IAM_CUSTOM_CERT_MODULES ??= ""
 
 # SM crashes if dynamic link selected, disable dynamic link till the problem is solved
 GO_LINKSHARED = ""
@@ -28,12 +28,12 @@ do_prepare_modules() {
     echo 'package certmodules' > ${file}
     echo 'import (' >> ${file}
 
-    for module in ${AOS_CM_CERT_MODULES}; do
-        echo "\t_ \"aos_certificatemanager/certmodules/${module}\"" >> ${file}
+    for module in ${AOS_IAM_CERT_MODULES}; do
+        echo "\t_ \"aos_iamanager/certmodules/${module}\"" >> ${file}
     done
 
-    for custom_module in ${AOS_CM_CUSTOM_CERT_MODULES}; do
-        echo "\t_ \"aos_certificatemanager/${custom_module}\"" >> ${file}
+    for custom_module in ${AOS_IAM_CUSTOM_CERT_MODULES}; do
+        echo "\t_ \"aos_iamanager/${custom_module}\"" >> ${file}
     done
 
     echo ')' >> ${file}
