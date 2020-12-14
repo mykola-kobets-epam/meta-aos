@@ -10,7 +10,7 @@ SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;branch=${BRANCH}
 
 inherit go
 
-AOS_VIS_PLUGINS ??= "storageadapter"
+AOS_VIS_PLUGINS ??= "storageadapter vinadapter usersadapter"
 AOS_VIS_CUSTOM_PLUGINS ??= ""
 
 # SM crashes if dynamic link selected, disable dynamic link till the problem is solved
