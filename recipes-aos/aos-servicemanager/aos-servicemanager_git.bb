@@ -10,7 +10,7 @@ SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;branch=${BRANCH}
 
 inherit go
 
-AOS_SM_IDENTIFIERS ??= "visidentifier"
+AOS_SM_IDENTIFIERS ??= "visidentifier fileidentifier"
 AOS_SM_CUSTOM_IDENTIFIERS ??= ""
 
 # SM crashes if dynamic link selected, disable dynamic link till the problem is solved
