@@ -10,9 +10,6 @@ SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;branch=${BRANCH}
 
 inherit go
 
-AOS_SM_IDENTIFIERS ??= "visidentifier fileidentifier"
-AOS_SM_CUSTOM_IDENTIFIERS ??= ""
-
 # SM crashes if dynamic link selected, disable dynamic link till the problem is solved
 GO_LINKSHARED = ""
 
@@ -23,24 +20,6 @@ GO_LDFLAGS += '-ldflags="-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}
 # LDFLAGS += "-lpthread"
 
 DEPENDS = "systemd"
-
-do_prepare_modules() {
-    file="${S}/src/${GO_IMPORT}/identification/identification.go"
-
-    echo 'package identification' > ${file}
-    echo 'import (' >> ${file}
-
-    for identifier in ${AOS_SM_IDENTIFIERS}; do
-        echo "\t_ \"aos_servicemanager/identification/${identifier}\"" >> ${file}
-    done
-
-    for custom_identifier in ${AOS_SM_CUSTOM_IDENTIFIERS}; do
-        echo "\t_ \"aos_servicemanager/${custom_identifier}\"" >> ${file}
-    done
-
-    echo ')' >> ${file}
-}
-
 
 RDEPENDS_${PN} += "\
     ca-certificates \
