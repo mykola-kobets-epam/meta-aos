@@ -10,8 +10,7 @@ SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;branch=${BRANCH}
 
 inherit go
 
-AOS_UM_UPDATE_MODULES ??= "testmodule"
-AOS_UM_CUSTOM_UPDATE_MODULES ??= ""
+AOS_UM_UPDATE_MODULES ??= ""
 
 # SM crashes if dynamic link selected, disable dynamic link till the problem is solved
 GO_LINKSHARED = ""
@@ -23,17 +22,17 @@ GO_LDFLAGS += '-ldflags="-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}
 # LDFLAGS += "-lpthread"
 
 do_prepare_modules() {
+    if [ -z "${AOS_UM_UPDATE_MODULES}" ]; then
+        exit 0
+    fi
+
     file="${S}/src/${GO_IMPORT}/updatemodules/modules.go"
 
     echo 'package updatemodules' > ${file}
     echo 'import (' >> ${file}
 
     for module in ${AOS_UM_UPDATE_MODULES}; do
-        echo "\t_ \"aos_updatemanager/updatemodules/${module}\"" >> ${file}
-    done
-
-    for custom_update_module in ${AOS_UM_CUSTOM_UPDATE_MODULES}; do
-        echo "\t_ \"aos_updatemanager/${custom_update_module}\"" >> ${file}
+        echo "\t_ \"aos_updatemanager/${module}\"" >> ${file}
     done
 
     echo ')' >> ${file}

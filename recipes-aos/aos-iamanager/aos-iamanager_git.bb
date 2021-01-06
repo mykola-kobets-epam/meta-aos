@@ -10,8 +10,8 @@ SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;branch=${BRANCH}
 
 inherit go
 
-AOS_IAM_CERT_MODULES ??= "swmodule"
-AOS_IAM_CUSTOM_CERT_MODULES ??= ""
+AOS_IAM_CERT_MODULES ??= ""
+AOS_IAM_IDENT_MODULES ??= ""
 
 # SM crashes if dynamic link selected, disable dynamic link till the problem is solved
 GO_LINKSHARED = ""
@@ -22,18 +22,35 @@ GO_LDFLAGS += '-ldflags="-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}
 # this flag is requied when GO_LINKSHARED is enabled
 # LDFLAGS += "-lpthread"
 
-do_prepare_modules() {
-    file="${S}/src/${GO_IMPORT}/certmodules/modules.go"
+do_prepare_cert_modules() {
+    if [ -z "${AOS_IAM_CERT_MODULES}" ]; then
+        exit 0
+    fi
+
+    file="${S}/src/${GO_IMPORT}/certhandler/modules/modules.go"
 
     echo 'package certmodules' > ${file}
     echo 'import (' >> ${file}
 
     for module in ${AOS_IAM_CERT_MODULES}; do
-        echo "\t_ \"aos_iamanager/certmodules/${module}\"" >> ${file}
+        echo "\t_ \"aos_iamanager/${module}\"" >> ${file}
     done
 
-    for custom_module in ${AOS_IAM_CUSTOM_CERT_MODULES}; do
-        echo "\t_ \"aos_iamanager/${custom_module}\"" >> ${file}
+    echo ')' >> ${file}
+}
+
+do_prepare_ident_modules() {
+    if [ -z "${AOS_IAM_IDENT_MODULES}" ]; then
+        exit 0
+    fi
+
+    file="${S}/src/${GO_IMPORT}/identhandler/modules/modules.go"
+
+    echo 'package identmodules' > ${file}
+    echo 'import (' >> ${file}
+
+    for module in ${AOS_IAM_IDENT_MODULES}; do
+        echo "\t_ \"aos_iamanager/${module}\"" >> ${file}
     done
 
     echo ')' >> ${file}
@@ -47,4 +64,5 @@ RDEPENDS_${PN} += "\
 RDEPENDS_${PN}-dev += " bash make"
 RDEPENDS_${PN}-staticdev += " bash make"
 
-addtask prepare_modules after do_unpack before do_compile
+addtask prepare_cert_modules after do_unpack before do_compile
+addtask prepare_ident_modules after do_unpack before do_compile
