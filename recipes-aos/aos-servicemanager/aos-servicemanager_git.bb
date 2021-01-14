@@ -27,7 +27,7 @@ RDEPENDS_${PN} += "\
     openssl \
     quota \
     virtual/runc \
-    wondershaper \
+    cni \
 "
 
 RDEPENDS_${PN}-dev += " bash make"
