@@ -28,6 +28,7 @@ RDEPENDS_${PN} += "\
     quota \
     virtual/runc \
     cni \
+    aos-firewall \
 "
 
 RDEPENDS_${PN}-dev += " bash make"
