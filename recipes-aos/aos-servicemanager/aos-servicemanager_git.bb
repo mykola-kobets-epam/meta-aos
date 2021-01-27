@@ -29,6 +29,7 @@ RDEPENDS_${PN} += "\
     virtual/runc \
     cni \
     aos-firewall \
+    dnsname \
 "
 
 RDEPENDS_${PN}-dev += " bash make"
