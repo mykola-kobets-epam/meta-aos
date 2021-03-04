@@ -1,184 +1,126 @@
-def init_metadata(cfg, output_dir):
-    import json
-    import sys
-    import os
-    import tempfile
-    import glob
-    import subprocess
-    import shutil
-    import time
+# This class contains functions to generate uppdate bundle metadata
 
-    BUNDLE_CONFIG_SECTION = "bundleConfig"
+def create_dep(id, required_version, min_version=None, max_version=None):
+    FIELD_ID = "id"
+    FIELD_REQUIRED_VERSION = "requiredVersion"
+    FIELD_MIN_VERSION = "minVersion"
+    FIELD_MAX_VERSION = "maxVersion"
 
-    OPT_BASE_DIR = "workspaceBaseDir"
-    OPT_TOP_TEMPLATE = "topTemplate"
-    OPT_COMPONENTS = "components"
+    if required_version and (min_version or max_version):
+        raise RuntimeError(
+            "{} should not be set along with {} or {}".format(FIELD_REQUIRED_VERSION, FIELD_MIN_VERSION, FIELD_MAX_VERSION))
 
-    OPT_ITEM_TEMPLATE = "itemTemplate"
-    OPT_TYPE = "type"
-    OPT_REQ_VERSION = "requiredVersion"
-    OPT_MIN_VERSION = "minVersion"
-    OPT_MAX_VERSION = "maxVersion"
-    OPT_RUNTIME_DEPS = "runtimeDependencies"
+    return {FIELD_ID: id, FIELD_REQUIRED_VERSION: required_version, FIELD_MIN_VERSION: min_version, FIELD_MAX_VERSION: max_version}
 
-    class MetadataProcessor:
-        def __init__(self, cfg, output_dir):
-            bb.debug(1, "Metadata processor")
 
-            self.__cfg = cfg
-            self.__components = list()
-            self.__components_data = list()
+def create_component_metadata(id, file_name, vendor_version, description=None, install_dep=None, runtime_deps=None, annotations=None):
+    FIELD_ID = "id"
+    FIELD_FILE_NAME = "fileName"
+    FIELD_VENDOR_VERSION = "vendorVersion"
+    FIELD_DESCRIPTION = "description"
+    FIELD_REQUIRED_VERSION = "requiredVersion"
+    FIELD_MIN_VERSION = "minVersion"
+    FIELD_MAX_VERSION = "maxVersion"
+    FIELD_RUNTIME_DEPS = "runtimeDependencies"
+    FIELD_ANNOTATIONS = "annotations"
 
-            self.__temp = output_dir
+    # check mandatory fields
+    if not id or not file_name or not vendor_version:
+        raise RuntimeError(
+            "mandatory field ({} or {} or {}) is missing".format(FIELD_ID, FIELD_FILE_NAME, FIELD_VENDOR_VERSION))
 
-            if not self.__temp:
-                self.__temp = tempfile.mkdtemp()
+    component = {FIELD_ID: id, FIELD_FILE_NAME: file_name,
+                 FIELD_VENDOR_VERSION: vendor_version, FIELD_DESCRIPTION: description, FIELD_ANNOTATIONS: annotations}
 
-                bb.debug(1, 
-                    "Create tmp dir for metadata generator, {}".format(self.__temp))
-            else:
-                self.__cleanup()
+    # install dep
+    if install_dep:
+        if not isinstance(install_dep, dict):
+            raise RuntimeError(
+                "install_deps should be dictionary")
 
-            top_template_file = cfg.get(
-                BUNDLE_CONFIG_SECTION, OPT_TOP_TEMPLATE)
-            top_template_path = os.path.join(
-                self.get_basedir(), top_template_file)
+        if install_dep.get(FIELD_REQUIRED_VERSION) and (install_dep.get(FIELD_MIN_VERSION) or install_dep.get(FIELD_MAX_VERSION)):
+            raise RuntimeError(
+                "{} should not be set along with {} or {}".format(FIELD_REQUIRED_VERSION, FIELD_MIN_VERSION, FIELD_MAX_VERSION))
 
-            with open(top_template_path) as top_template:
-                self.__top_template = json.load(top_template)
+        install_deps_id = install_dep.get(FIELD_ID)
 
-                bb.debug(1, "Top template {}".format(
-                    str(self.__top_template)))
+        if install_deps_id and install_deps_id != id:
+            raise RuntimeError(
+                "install deps {} should be equal to item {}".format(FIELD_ID, FIELD_ID))
 
-                self.__update_values(
-                    BUNDLE_CONFIG_SECTION, self.__top_template)
+        component[FIELD_REQUIRED_VERSION] = install_dep.get(
+            FIELD_REQUIRED_VERSION)
+        component[FIELD_MIN_VERSION] = install_dep.get(FIELD_MIN_VERSION)
+        component[FIELD_MAX_VERSION] = install_dep.get(FIELD_MAX_VERSION)
 
-                bb.debug(1, "Top metadata {}".format(
-                    str(self.__top_template)))
+    # runtime deps
+    if runtime_deps:
+        if not isinstance(runtime_deps, list):
+            raise RuntimeError(
+                "runtime_deps should be list")
 
-            for component in cfg.get(BUNDLE_CONFIG_SECTION, OPT_COMPONENTS).split():
-                self.__components.append(component)
-                self.__load_component(component)
+        component[FIELD_RUNTIME_DEPS] = []
 
-            bb.debug(1, "Components in bundle {}".format(self.__components))
-
-        def __cleanup(self):
-            shutil.rmtree(self.__temp, ignore_errors=True)
-            os.makedirs(self.__temp)
-
-        def __process_deps(self, current_id, value):
-            template = list()
-
-            for dep in value.split():
-                dep_items = dep.split(";")
-                id = dep_items[0]
-
-                if id == current_id:
-                    raise RuntimeError(
-                        "ivalid dependency id: {}".format(id))
-
-                if not cfg.has_section(id):
-                    raise RuntimeError(
-                        "unknown component: {}".format(id))
-
-                dep_item = {"id": id}
-
-                for item in dep_items[1:]:
-                    name, value = item.partition("=")[:: 2]
-
-                    dep_item[name] = value
-
-                template.append(dep_item)
-
-            return template
-
-        def __update_values(self, section, template):
-            keys_to_delete = list()
-
-            for key, value in template.items():
-                if isinstance(value, dict):
-                    self.__update_values(section, value)
-
-                    if not value:
-                        keys_to_delete.append(key)
-
-                elif self.__cfg.has_option(section, key):
-                    if key == OPT_RUNTIME_DEPS:
-                        template[key] = self.__process_deps(section,
-                                                            self.__cfg.get(section, key))
-                    else:
-                        template[key] = self.__cfg.get(section, key)
-                elif isinstance(value, str):
-                    if value == "optional":
-                        keys_to_delete.append(key)
-                    elif value == "required":
-                        raise RuntimeError(
-                            "required field {} is not set".format(key))
-
-            for key in keys_to_delete:
-                del template[key]
-
-            reqVersionFound = False
-            minMaxVersionFound = False
-
-            for key, value in template.items():
-                if key == OPT_REQ_VERSION:
-                    reqVersionFound = True
-
-                if key == OPT_MIN_VERSION or key == OPT_MAX_VERSION:
-                    minMaxVersionFound = True
-
-            if reqVersionFound and minMaxVersionFound:
+        for dep in runtime_deps:
+            if not isinstance(dep, dict):
                 raise RuntimeError(
-                    "required version should not be set with min or max version")
+                    "runtime_deps item should be dict")
 
-        def __load_component(self, component):
-            bb.debug(1, "Load {} item".format(component))
+            if not dep.get(FIELD_ID):
+                raise RuntimeError(
+                    "missing mandatory field {} in runtime deps".format(FIELD_ID))
 
-            item_template_file = self.__cfg.get(component, OPT_ITEM_TEMPLATE)
-            item_template_path = os.path.join(
-                self.get_basedir(), item_template_file)
+            if dep.get(FIELD_REQUIRED_VERSION) and (dep.get(FIELD_MIN_VERSION) or dep.get(FIELD_MAX_VERSION)):
+                raise RuntimeError(
+                    "{} should not be set along with {} or {}".format(FIELD_REQUIRED_VERSION, FIELD_MIN_VERSION, FIELD_MAX_VERSION))
 
-            with open(item_template_path) as item_file:
-                item_template = json.load(item_file)
-                item_template['id'] = component
+            component[FIELD_RUNTIME_DEPS].append(
+                {FIELD_ID: dep.get(FIELD_ID), FIELD_REQUIRED_VERSION: dep.get(FIELD_REQUIRED_VERSION),
+                 FIELD_MIN_VERSION: dep.get(FIELD_MIN_VERSION), FIELD_MAX_VERSION: dep.get(FIELD_MAX_VERSION)})
 
-                bb.debug(1, 
-                    "Component {} template {}".format(component, str(item_template)))
+    return component
 
-                self.__update_values(component, item_template)
 
-                bb.debug(1, "Component {} metadata {}".format(component,
-                                                                str(item_template)))
+def write_image_metadata(output_dir, board_model, components):
+    import os
+    import json
 
-                self.__components_data.append(item_template)
+    FORMAT_VERSION = 1
+    METADATA_FILE_NAME = "metadata.json"
 
-        def get_components(self):
-            return self.__components
+    FIELD_FORMAT_VERSION = "formatVersion"
+    FIELD_BOARD_MODEL = "boardModel"
+    FIELD_COMPONENTS = "components"
 
-        def write(self):
-            self.__top_template[OPT_COMPONENTS] = self.__components_data
+    # check mandatory fields
+    if not board_model or not components:
+        raise RuntimeError(
+            "mandatory field ({} or {}) is missing".format(FIELD_BOARD_MODEL, FIELD_COMPONENTS))
 
-            bb.debug(1, "Write metadata {}".format(str(self.__top_template)))
+    if not isinstance(components, list):
+        raise RuntimeError(
+            "components should be list")
 
-            with open('{}/metadata.json'.format(self.__temp), 'w') as outfile:
-                json.dump(self.__top_template, outfile, indent=4)
+    for component in components:
+        if not isinstance(component, dict):
+            raise RuntimeError(
+                "components item should be dict")
 
-        def get_bundlepath(self):
-            return self.__temp
+    metadata = {FIELD_FORMAT_VERSION: FORMAT_VERSION,
+                FIELD_BOARD_MODEL: board_model, FIELD_COMPONENTS: components}
 
-        def get_type(self, component):
-            if self.__cfg.has_option(component, OPT_TYPE) is not True:
-                return ""
+    def remove_empty_elements(metadata):
+        def empty(value):
+            return not value or value == {} or value == []
 
-            return self.__cfg.get(component, OPT_TYPE)
+        if not isinstance(metadata, (dict, list)):
+            return metadata
+        elif isinstance(metadata, list):
+            return [value for value in (remove_empty_elements(value) for value in metadata) if not empty(value)]
+        else:
+            return {key: value for key, value in ((key, remove_empty_elements(value)) for key, value in metadata.items()) if not empty(value)}
 
-        def get_basedir(self):
-            if self.__cfg.has_option(BUNDLE_CONFIG_SECTION, OPT_BASE_DIR) is not True:
-                return ""
+    metadata = remove_empty_elements(metadata)
 
-            return self.__cfg.get(BUNDLE_CONFIG_SECTION, OPT_BASE_DIR)
-
-    return MetadataProcessor(cfg, output_dir)
-
-EXPORT_FUNCTIONS init_metadata
+    with open(os.path.join(output_dir, METADATA_FILE_NAME), 'w') as outfile:
+        json.dump(metadata, outfile, indent=4)
