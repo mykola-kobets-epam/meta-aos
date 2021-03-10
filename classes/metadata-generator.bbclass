@@ -1,5 +1,7 @@
 # This class contains functions to generate uppdate bundle metadata
 
+# Update bundle metadata
+
 def create_dep(id, required_version, min_version=None, max_version=None):
     FIELD_ID = "id"
     FIELD_REQUIRED_VERSION = "requiredVersion"
@@ -80,6 +82,16 @@ def create_component_metadata(id, file_name, vendor_version, description=None, i
 
     return component
 
+def remove_empty_elements(metadata):
+    def empty(value):
+        return not value or value == {} or value == []
+
+    if not isinstance(metadata, (dict, list)):
+        return metadata
+    elif isinstance(metadata, list):
+        return [value for value in (remove_empty_elements(value) for value in metadata) if not empty(value)]
+    else:
+        return {key: value for key, value in ((key, remove_empty_elements(value)) for key, value in metadata.items()) if not empty(value)}
 
 def write_image_metadata(output_dir, board_model, components):
     import os
@@ -109,16 +121,47 @@ def write_image_metadata(output_dir, board_model, components):
     metadata = {FIELD_FORMAT_VERSION: FORMAT_VERSION,
                 FIELD_BOARD_MODEL: board_model, FIELD_COMPONENTS: components}
 
-    def remove_empty_elements(metadata):
-        def empty(value):
-            return not value or value == {} or value == []
+    metadata = remove_empty_elements(metadata)
 
-        if not isinstance(metadata, (dict, list)):
-            return metadata
-        elif isinstance(metadata, list):
-            return [value for value in (remove_empty_elements(value) for value in metadata) if not empty(value)]
-        else:
-            return {key: value for key, value in ((key, remove_empty_elements(value)) for key, value in metadata.items()) if not empty(value)}
+    with open(os.path.join(output_dir, METADATA_FILE_NAME), 'w') as outfile:
+        json.dump(metadata, outfile, indent=4)
+
+# Layer metadata
+
+def create_layer_platform_info(arch, os, os_version, os_features):
+    FIELD_ARCH = "architecture"
+    FIELD_OS = "os"
+    FIELD_OS_VERSION = "osVersion"
+    FIELD_OS_FEATURES = "osFeatures"
+
+    return {FIELD_ARCH : arch, FIELD_OS: os, FIELD_OS_VERSION: os_version, FIELD_OS_FEATURES: os_features}
+
+def create_layer_annotations(layer_id, parent_layer_id=None, parent_layer_digest=None):
+    FIELD_LAYER_ID = "layerId"
+    FIELD_PARENT_LAYER_ID = "parrentLayerId"
+    FIELD_PARENT_LAYER_DIGEST = "parrentLayerDigest"
+
+    return {FIELD_LAYER_ID : layer_id, FIELD_PARENT_LAYER_ID: parent_layer_id, FIELD_PARENT_LAYER_DIGEST: parent_layer_digest}
+
+def write_layer_metadata(output_dir, media_type, digest, size, platform_info=None, annotations=None):
+    import os
+    import json
+
+    FIELD_MEDIATYPE = "mediaType"
+    FIELD_DIGEST = "digest"
+    FIELD_SIZE = "size"
+    FIELD_PLATFORM = "platform"
+    FIELD_ANNOTATIONS = "annotations"
+
+    METADATA_FILE_NAME = "metadata.json"
+
+    # check mandatory fields
+    if not media_type or not digest or not size:
+        raise RuntimeError(
+            "mandatory field ({} or {} or {}) is missing".format(FIELD_MEDIATYPE, FIELD_DIGEST, FIELD_SIZE))
+
+    metadata = {FIELD_MEDIATYPE: media_type, FIELD_DIGEST: digest, FIELD_SIZE: size,
+        FIELD_PLATFORM: platform_info, FIELD_ANNOTATIONS: annotations}
 
     metadata = remove_empty_elements(metadata)
 
