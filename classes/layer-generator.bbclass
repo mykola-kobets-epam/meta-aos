@@ -2,9 +2,9 @@
 
 # Configuration
 
-BASE_IMAGE ?= "aos-image-minimal"
-PARENT_LAYER ?= "${BASE_IMAGE}"
-LAYER_VERSION ?= "1"
+BASE_IMAGE ??= "aos-image-minimal"
+PARENT_LAYER ??= "${BASE_IMAGE}"
+LAYER_VERSION ??= "1"
 
 # Inherit
 

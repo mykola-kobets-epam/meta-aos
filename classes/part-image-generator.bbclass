@@ -1,9 +1,9 @@
 # This class generates partition image from WIC
 
-PART_IMAGE_PARTNO ?= ""
-PART_IMAGE_DIR ?= "${WORKDIR}/update"
-PART_IMAGE_FILE ?= "${IMAGE_BASENAME}-${MACHINE}-p${PART_IMAGE_PARTNO}.gz"
-PART_SOURCE_DIR ?= "${WORKDIR}/build-wic"
+PART_IMAGE_PARTNO ??= ""
+PART_IMAGE_DIR ??= "${WORKDIR}/update"
+PART_IMAGE_FILE ??= "${IMAGE_BASENAME}-${MACHINE}-p${PART_IMAGE_PARTNO}.gz"
+PART_SOURCE_DIR ??= "${WORKDIR}/build-wic"
 
 # Functions
 
