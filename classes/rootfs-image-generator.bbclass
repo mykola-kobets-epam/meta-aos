@@ -66,7 +66,7 @@ create_incremental_update() {
     done
 
     if [ ! "$(ls -A ${ROOTFS_DIFF_DIR})" ]; then
-        bbwarn "incremental roofs update is empty"
+        bbfatal "incremental roofs update is empty"
     fi
 
     mksquashfs ${ROOTFS_DIFF_DIR} ${ROOTFS_IMAGE_DIR}/${ROOTFS_IMAGE_FILE} \
