@@ -37,3 +37,6 @@ other layers needed. e.g.:
 
 Set PREFERRED_PROVIDER_virtual/runc = "runc-opencontainers" to build runc from
 opencontainers.
+
+Set AOS_RUNNER to define which runner will be used to run AoS services.
+Currently supported: runc and crun. Default is runc.

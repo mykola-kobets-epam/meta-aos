@@ -26,11 +26,14 @@ RDEPENDS_${PN} += "\
     iptables \
     openssl \
     quota \
-    virtual/runc \
     cni \
     aos-firewall \
     aos-dnsname \
 "
+
+AOS_RUNNER ?= "runc"
+
+RDEPENDS_${PN} += " ${@bb.utils.contains("AOS_RUNNER", "runc", " virtual/runc", "${AOS_RUNNER}", d)}"
 
 RDEPENDS_${PN}-dev += " bash make"
 RDEPENDS_${PN}-staticdev += " bash make"
