@@ -31,7 +31,7 @@ RDEPENDS_${PN} += "\
     aos-dnsname \
 "
 
-AOS_RUNNER ?= "runc"
+AOS_RUNNER ??= "runc"
 
 RDEPENDS_${PN} += " ${@bb.utils.contains("AOS_RUNNER", "runc", " virtual/runc", "${AOS_RUNNER}", d)}"
 
