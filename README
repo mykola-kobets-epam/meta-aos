@@ -1,10 +1,12 @@
-AOS meta layer
+AoS meta layer
 ==============
 
-This meta layer contains recipes for AOS components such as:
+This meta layer contains recipes for AoS components such as:
 * telemetry-emulator - telemetry emulator script;
-* aos-vis - AOS vehicle information service;
-* aos-servicemanager - AOS service manager;
+* aos-vis - AoS vehicle information service;
+* aos-servicemanager - AoS service manager;
+* aos-updatemanager - AoS update manager;
+* aos-iamanager - AoS identity and access manager.
 
 Table of Contents
 =================
