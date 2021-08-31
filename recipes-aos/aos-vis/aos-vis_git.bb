@@ -5,7 +5,7 @@ LICENSE = "CLOSED"
 GO_IMPORT = "aos_vis"
 
 BRANCH = "master"
-SRCREV = "${AUTOREV}"
+SRCREV = "8c53ae6b8f3657cded58669b382aedeb954ba245"
 SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;branch=${BRANCH};protocol=ssh"
 
 inherit go

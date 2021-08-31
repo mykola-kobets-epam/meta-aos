@@ -6,7 +6,7 @@ GO_IMPORT = "aos_cni_firewall"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "master"
-SRCREV = "${AUTOREV}"
+SRCREV = "8971aa4dc027f921bc6d924e1cebcc21ed2b2d41"
 SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;branch=${BRANCH};protocol=ssh"
 
 inherit go
