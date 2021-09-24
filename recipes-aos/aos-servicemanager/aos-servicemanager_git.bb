@@ -5,8 +5,8 @@ GO_IMPORT = "aos_servicemanager"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-BRANCH = "master"
-SRCREV = "c655635b30439c955da8f9f279cabb427666c17f"
+BRANCH = "develop"
+SRCREV = "${AUTOREV}"
 SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;branch=${BRANCH};protocol=ssh"
 
 inherit go
