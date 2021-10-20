@@ -1,8 +1,9 @@
 DESCRIPTION = "AOS VIS"
 
-LICENSE = "CLOSED"
-
 GO_IMPORT = "aos_vis"
+
+LICENSE = "Apache-2.0"
+LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "master"
 SRCREV = "8c53ae6b8f3657cded58669b382aedeb954ba245"

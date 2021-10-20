@@ -3,7 +3,7 @@ DESCRIPTION = "DNS name CNI plugin"
 GO_IMPORT = "aos_cni_dns"
 
 LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
+LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "master"
 SRCREV = "74ae385e3bc7d0c8a218990d04f16d399d792f32"

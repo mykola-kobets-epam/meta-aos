@@ -1,8 +1,8 @@
 DESCRIPTION = "AOS fierwall CNI plugin"
 
-LICENSE = "Apache-2.0"
-
 GO_IMPORT = "aos_cni_firewall"
+
+LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "master"

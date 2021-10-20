@@ -1,8 +1,9 @@
 DESCRIPTION = "AOS Update Manager"
 
-LICENSE = "CLOSED"
-
 GO_IMPORT = "aos_updatemanager"
+
+LICENSE = "Apache-2.0"
+LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "master"
 SRCREV = "881fb40b816ab4fa9dc1ab2653476a1d65fea04f"
