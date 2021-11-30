@@ -2,7 +2,7 @@ DESCRIPTION = "AOS Telemetry Emulator"
 
 DIR_TELEMETRY_EMULATOR = "${datadir}/telemetry_emulator"
 
-SRCREV = "${AUTOREV}"
+SRCREV = "b96983140289e617b3d54f9a92040107bbaaf58b"
 SRC_URI = " \
     git://git@gitpct.epam.com/epmd-aepr/demo_insurance;protocol=ssh;branch=develop \
     file://telemetry-emulator.service \
