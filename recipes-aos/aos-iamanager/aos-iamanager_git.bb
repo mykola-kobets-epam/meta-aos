@@ -6,7 +6,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "master"
-SRCREV = "07ab847cc6e64d22ef7628caf55cb547ba6eaab7"
+SRCREV = "d6976ee55ba3222c200f3b4843a1edf67e9c644d"
 SRC_URI = "git://git@gitpct.epam.com/epmd-aepr/${GO_IMPORT}.git;branch=${BRANCH};protocol=ssh"
 
 inherit go
