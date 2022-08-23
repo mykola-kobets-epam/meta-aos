@@ -6,7 +6,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "main"
-SRCREV = "91fabae5e1e32179c0417b47c861ca9cb1ed5ad7"
+SRCREV = "d02c81e1182f4bc0b2c7991425cae979097d9cb7"
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
 inherit go
@@ -21,9 +21,12 @@ RDEPENDS_${PN} += "\
     dnsmasq \
 "
 
-do_compile() {
-    cd ${S}/src/${GO_IMPORT}
-    ${GO} build -o ${B}/bin/dnsname ./plugins/meta/dnsname/
+# WA to support go install for v 1.18
+
+GO_LINKSHARED = ""
+
+do_compile_prepend() {
+    cd ${GOPATH}/src/${GO_IMPORT}/
 }
 
 do_install() {
