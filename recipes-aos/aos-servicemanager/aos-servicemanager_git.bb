@@ -27,7 +27,18 @@ RDEPENDS_${PN} += "\
     aos-dnsname \
 "
 
-AOS_RUNNER ??= "runc"
+RDEPENDS_${PN} += " \
+    kernel-module-bridge \
+    kernel-module-nfnetlink \
+    kernel-module-veth \
+    kernel-module-xt-addrtype \
+    kernel-module-xt-comment \
+    kernel-module-xt-conntrack \
+    kernel-module-xt-masquerade \
+    kernel-module-overlay \
+"
+
+AOS_RUNNER ??= "crun"
 
 RDEPENDS_${PN} += " ${@bb.utils.contains("AOS_RUNNER", "runc", " virtual/runc", "${AOS_RUNNER}", d)}"
 
