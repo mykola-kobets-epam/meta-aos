@@ -6,13 +6,13 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
 BRANCH = "main"
-SRCREV = "6710f5ffb5a7df59d8d40c9901baeee06bda78f9"
+SRCREV = "648ef1ee6f678da3a7fb285be5563e84973b2fbf"
 
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
 SRC_URI += " \
     file://aos_messageproxy.cfg \
-    file://aos-message-proxy.service \
+    file://aos-messageproxy.service \
     file://aos-target.conf \
 "
 FILES_${PN} += " \
@@ -41,7 +41,7 @@ do_install_append() {
     install -m 0644 ${WORKDIR}/aos_messageproxy.cfg ${D}${sysconfdir}/aos
 
     install -d ${D}${systemd_system_unitdir}
-    install -m 0644 ${WORKDIR}/aos-message-proxy.service ${D}${systemd_system_unitdir}
+    install -m 0644 ${WORKDIR}/aos-messageproxy.service ${D}${systemd_system_unitdir}
 
     install -d ${D}${sysconfdir}/systemd/system/aos.target.d
     install -m 0644 ${WORKDIR}/aos-target.conf ${D}${sysconfdir}/systemd/system/aos.target.d/${PN}.conf
