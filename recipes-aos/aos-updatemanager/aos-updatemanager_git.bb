@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 DESCRIPTION = "AOS Update Manager"
 
@@ -8,18 +8,20 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "main"
-SRCREV = "a4215b33dbb0c5af0848851932d73c7245b3c89c"
+SRCREV = "aeb3b8d4bd819033e5d1d0b8f7803d2be7b5f218"
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
 SRC_URI += " \
     file://aos_updatemanager.cfg \
     file://aos-updatemanager.service \
     file://aos-target.conf \
+    file://aos-dirs-service.conf \
+    file://aos-cm-service.conf \
 "
 
 inherit go goarch systemd
 
-SYSTEMD_SERVICE_${PN} = "aos-updatemanager.service"
+SYSTEMD_SERVICE:${PN} = "aos-updatemanager.service"
 
 AOS_UM_UPDATE_MODULES ?= " \
     updatemodules/testmodule \
@@ -27,26 +29,26 @@ AOS_UM_UPDATE_MODULES ?= " \
 
 MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/aos/um/migration"
 
-FILES_${PN} += " \
+FILES:${PN} += " \
     ${sysconfdir} \
     ${systemd_system_unitdir} \
     ${MIGRATION_SCRIPTS_PATH} \
 "
 
-DEPENDS_append = " \
+DEPENDS:append = " \
     pkgconfig-native \
     util-linux \
     efivar \
 "
 
-RDEPENDS_${PN} = " \
+RDEPENDS:${PN} = " \
     aos-rootca \
 "
 
-RDEPENDS_${PN}-dev += " bash make"
-RDEPENDS_${PN}-staticdev += " bash make"
+RDEPENDS:${PN}-dev += " bash make"
+RDEPENDS:${PN}-staticdev += " bash make"
 
-INSANE_SKIP_${PN} = "textrel"
+INSANE_SKIP:${PN} = "textrel"
 
 # embed version
 GO_LDFLAGS += '-ldflags="-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}/.git describe --tags --always`"'
@@ -55,7 +57,7 @@ GO_LDFLAGS += '-ldflags="-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}
 
 GO_LINKSHARED = ""
 
-do_compile_prepend() {
+do_compile:prepend() {
     cd ${GOPATH}/src/${GO_IMPORT}/
 }
 
@@ -72,7 +74,39 @@ do_prepare_modules() {
     echo ')' >> ${file}
 }
 
-do_install_append() {
+python do_update_config() {
+    import json
+
+    file_name = oe.path.join(d.getVar("D"), d.getVar("sysconfdir"), "aos", "aos_updatemanager.cfg")
+
+    with open(file_name) as f:
+        data = json.load(f)
+
+    node_hostname = d.getVar("AOS_NODE_HOSTNAME")
+    main_node_hostname = d.getVar("AOS_MAIN_NODE_HOSTNAME")
+ 
+    # Update IAM servers
+    
+    data["IAMPublicServerURL"] = node_hostname+":8090"
+
+    # Update CM server
+
+    data["CMServerURL"] = main_node_hostname+":8091"
+
+    # Update component IDs
+
+    comp_prefix = d.getVar("AOS_UM_COMPONENT_PREFIX")
+
+    for update_module in data["UpdateModules"]:
+        update_module["ID"] = comp_prefix+update_module["ID"]
+
+    with open(file_name, "w") as f:
+        json.dump(data, f, indent=4)
+}
+
+do_compile[vardeps] += "AOS_UM_COMPONENT_PREFIX"
+
+do_install:append() {
     install -d ${D}${sysconfdir}/aos
     install -m 0644 ${WORKDIR}/aos_updatemanager.cfg ${D}${sysconfdir}/aos
 
@@ -82,6 +116,9 @@ do_install_append() {
     install -d ${D}${sysconfdir}/systemd/system/aos.target.d
     install -m 0644 ${WORKDIR}/aos-target.conf ${D}${sysconfdir}/systemd/system/aos.target.d/${PN}.conf
 
+    install -d ${D}${sysconfdir}/systemd/system/aos-updatemanager.service.d
+    install -m 0644 ${WORKDIR}/aos-dirs-service.conf ${D}${sysconfdir}/systemd/system/aos-updatemanager.service.d/20-aos-dirs-service.conf
+
     install -d ${D}${MIGRATION_SCRIPTS_PATH}
     source_migration_path="src/${GO_IMPORT}/database/migration"
     if [ -d ${S}/${source_migration_path} ]; then
@@ -89,4 +126,10 @@ do_install_append() {
     fi
 }
 
+do_install:append:aos-main-node() {
+    install -d ${D}${sysconfdir}/systemd/system/aos-updatemanager.service.d
+    install -m 0644 ${WORKDIR}/aos-cm-service.conf ${D}${sysconfdir}/systemd/system/aos-updatemanager.service.d/10-aos-cm-service.conf
+}
+
+addtask update_config after do_install before do_package
 addtask prepare_modules after do_unpack before do_compile

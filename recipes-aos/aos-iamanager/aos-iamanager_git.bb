@@ -6,7 +6,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "main"
-SRCREV = "88c0befbd17ef0ed845b1cbff4c6bae95c70ddfe"
+SRCREV = "1e49a5a44beb5c8270a7b8a957a7e2231745d2c1"
 
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
@@ -19,28 +19,28 @@ SRC_URI += " \
 
 inherit go goarch systemd
 
-SYSTEMD_SERVICE_${PN} = "aos-iamanager.service aos-iamanager-provisioning.service"
+SYSTEMD_SERVICE:${PN} = "aos-iamanager.service aos-iamanager-provisioning.service"
 
 AOS_IAM_CERT_MODULES ?= "certhandler/modules/swmodule"
 AOS_IAM_IDENT_MODULES ?= ""
 
 MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/aos/iam/migration"
 
-FILES_${PN} += " \
+FILES:${PN} += " \
     ${sysconfdir} \
     ${systemd_system_unitdir} \
     ${MIGRATION_SCRIPTS_PATH} \
 "
 
-RDEPENDS_${PN} += " \
+RDEPENDS:${PN} += " \
     aos-rootca \
     aos-provfinish \
 "
 
-RDEPENDS_${PN}-dev += " bash make"
-RDEPENDS_${PN}-staticdev += " bash make"
+RDEPENDS:${PN}-dev += " bash make"
+RDEPENDS:${PN}-staticdev += " bash make"
 
-INSANE_SKIP_${PN} = "textrel"
+INSANE_SKIP:${PN} = "textrel"
 
 # embed version
 GO_LDFLAGS += '-ldflags="-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}/.git describe --tags --always`"'
@@ -49,7 +49,7 @@ GO_LDFLAGS += '-ldflags="-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}
 
 GO_LINKSHARED = ""
 
-do_compile_prepend() {
+do_compile:prepend() {
     cd ${GOPATH}/src/${GO_IMPORT}/
 }
 
@@ -79,7 +79,51 @@ do_prepare_ident_modules() {
     echo ')' >> ${file}
 }
 
-do_install_append() {
+do_compile[vardeps] += "AOS_NODE_ID AOS_NODE_TYPE"
+
+python do_update_config() {
+    import json
+
+    file_name = oe.path.join(d.getVar("D"), d.getVar("sysconfdir"), "aos", "aos_iamanager.cfg")
+
+    with open(file_name) as f:
+        data = json.load(f)
+
+    # Set node ID and node type
+    
+    node_info = {
+        "NodeID": d.getVar("AOS_NODE_ID"),
+        "NodeType" : d.getVar("AOS_NODE_TYPE")
+    }
+
+    data = {**node_info, **data}
+
+    # Set alternative names for server certificates
+
+    for cert_module in data["CertModules"]:
+        if "ExtendedKeyUsage" in cert_module and "serverAuth" in cert_module["ExtendedKeyUsage"]:
+            cert_module["AlternativeNames"] = [d.getVar("AOS_NODE_HOSTNAME")]
+
+    # Add remote IAM's configuration
+
+    node_id = d.getVar("AOS_NODE_ID")
+    iam_nodes = d.getVar("AOS_IAM_NODES").split()
+    iam_hostnames = d.getVar("AOS_IAM_HOSTNAMES").split()
+
+    if len(iam_nodes) > 1 or (len(iam_nodes) == 1 and node_id not in iam_nodes):
+        data["RemoteIams"] = []
+
+        for i in range(len(iam_nodes)):
+            if iam_nodes[i] == node_id:
+                continue
+
+            data["RemoteIams"].append({"NodeID": iam_nodes[i], "URL": iam_hostnames[i]+":8089"})
+
+    with open(file_name, "w") as f:
+        json.dump(data, f, indent=4)
+}
+
+do_install:append() {
     install -d ${D}${sysconfdir}/aos
     install -m 0644 ${WORKDIR}/aos_iamanager.cfg ${D}${sysconfdir}/aos
 
@@ -99,3 +143,4 @@ do_install_append() {
 
 addtask prepare_cert_modules after do_unpack before do_compile
 addtask prepare_ident_modules after do_unpack before do_compile
+addtask update_config after do_install before do_package

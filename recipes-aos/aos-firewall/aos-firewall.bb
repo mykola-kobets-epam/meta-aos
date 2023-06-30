@@ -6,7 +6,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "main"
-SRCREV = "4e89ddcb454c4051d47a2c58db0ddf72ed8a4830"
+SRCREV = "50939f2c31e7e4c04e89e351523b820025aa96eb"
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
 inherit go
@@ -15,9 +15,9 @@ inherit goarch
 # embed version
 GO_LDFLAGS += '-ldflags="-X github.com/containernetworking/plugins/pkg/utils/buildversion.BuildVersion=`git --git-dir=${S}/src/${GO_IMPORT}/.git describe --tags --always`"'
 
-FILES_${PN} = "${libexecdir}/cni"
+FILES:${PN} = "${libexecdir}/cni"
 
-RDEPENDS_${PN} += "\
+RDEPENDS:${PN} += "\
     iptables \
 "
 
@@ -25,7 +25,7 @@ RDEPENDS_${PN} += "\
 
 GO_LINKSHARED = ""
 
-do_compile_prepend() {
+do_compile:prepend() {
     cd ${GOPATH}/src/${GO_IMPORT}/
 }
 

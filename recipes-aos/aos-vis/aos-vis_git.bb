@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 DESCRIPTION = "AOS VIS"
 
@@ -8,7 +8,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "main"
-SRCREV = "29e16425378a44ad505efde0637e08687e22e39d"
+SRCREV = "0747422d7ba3caebd442a8c8b98d777f4e25760f"
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
 SRC_URI += " \
@@ -19,9 +19,9 @@ SRC_URI += " \
 
 inherit go goarch systemd
 
-SYSTEMD_SERVICE_${PN} = "aos-vis.service"
+SYSTEMD_SERVICE:${PN} = "aos-vis.service"
 
-VIS_DATA_PROVIDER ?= "renesassimulatoradapter"
+AOS_VIS_DATA_PROVIDER ?= "renesassimulatoradapter"
 
 AOS_VIS_PLUGINS ?= " \
     plugins/vinadapter \
@@ -30,25 +30,25 @@ AOS_VIS_PLUGINS ?= " \
 "
 
 python __anonymous() {
-    if d.getVar('VIS_DATA_PROVIDER'):
-        d.appendVar('AOS_VIS_PLUGINS', 'plugins/${VIS_DATA_PROVIDER}')
+    if d.getVar('AOS_VIS_DATA_PROVIDER'):
+        d.appendVar('AOS_VIS_PLUGINS', 'plugins/${AOS_VIS_DATA_PROVIDER}')
 }
 
 VIS_CERTS_PATH = "${base_prefix}/usr/share/aos/vis/certs"
 
-FILES_${PN} += " \
+FILES:${PN} += " \
     ${sysconfdir} \
     ${systemd_system_unitdir} \
     ${VIS_CERTS_PATH} \
 "
 
-RDEPENDS_${PN} += " \
+RDEPENDS:${PN} += " \
     aos-rootca \
-    ${@bb.utils.contains('VIS_DATA_PROVIDER', 'telemetryemulatoradapter', 'telemetry-emulator', '', d)} \
+    ${@bb.utils.contains('AOS_VIS_DATA_PROVIDER', 'telemetryemulatoradapter', 'telemetry-emulator', '', d)} \
 "
 
-RDEPENDS_${PN}-dev += " bash make"
-RDEPENDS_${PN}-staticdev += " bash make"
+RDEPENDS:${PN}-dev += " bash make"
+RDEPENDS:${PN}-staticdev += " bash make"
 
 # embed version
 GO_LDFLAGS += '-ldflags="-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}/.git describe --tags --always`"'
@@ -57,7 +57,7 @@ GO_LDFLAGS += '-ldflags="-X main.GitSummary=`git --git-dir=${S}/src/${GO_IMPORT}
 
 GO_LINKSHARED = ""
 
-do_compile_prepend() {
+do_compile:prepend() {
     cd ${GOPATH}/src/${GO_IMPORT}/
 }
 
@@ -89,7 +89,7 @@ python do_configure_adapters() {
         json.dump(data, f, indent=4)
 }
 
-do_install_append() {
+do_install:append() {
     install -d ${D}${sysconfdir}/aos
     install -m 0644 ${WORKDIR}/aos_vis.cfg ${D}${sysconfdir}/aos
 
@@ -99,7 +99,7 @@ do_install_append() {
     install -d ${D}${sysconfdir}/systemd/system/aos.target.d
     install -m 0644 ${WORKDIR}/aos-target.conf ${D}${sysconfdir}/systemd/system/aos.target.d/${PN}.conf
 
-    if "${@bb.utils.contains('VIS_DATA_PROVIDER', 'telemetryemulatoradapter', 'true', 'false', d)}"; then
+    if "${@bb.utils.contains('AOS_VIS_DATA_PROVIDER', 'telemetryemulatoradapter', 'true', 'false', d)}"; then
         sed -i -e 's/network-online.target/network-online.target telemetry-emulator.service/g' ${D}${systemd_system_unitdir}/aos-vis.service
         sed -i -e '/ExecStart/i ExecStartPre=/bin/sleep 1' ${D}${systemd_system_unitdir}/aos-vis.service
     fi
