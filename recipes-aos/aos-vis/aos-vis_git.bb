@@ -8,7 +8,8 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "main"
-SRCREV = "0747422d7ba3caebd442a8c8b98d777f4e25760f"
+SRCREV = "79e5fcdf627b0d70575baacb3783f3f3842f55c4"
+
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
 SRC_URI += " \
@@ -25,7 +26,7 @@ AOS_VIS_DATA_PROVIDER ?= "renesassimulatoradapter"
 
 AOS_VIS_PLUGINS ?= " \
     plugins/vinadapter \
-    plugins/boardmodeladapter \
+    plugins/unitmodeladapter \
     plugins/subjectsadapter \
 "
 

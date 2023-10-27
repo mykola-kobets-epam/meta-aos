@@ -6,7 +6,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "main"
-SRCREV = "1e49a5a44beb5c8270a7b8a957a7e2231745d2c1"
+SRCREV = "95797199864e4415c22686d6c8475e0b53171db2"
 
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
@@ -79,7 +79,7 @@ do_prepare_ident_modules() {
     echo ')' >> ${file}
 }
 
-do_compile[vardeps] += "AOS_NODE_ID AOS_NODE_TYPE"
+do_fetch[vardeps] += "AOS_NODE_ID AOS_NODE_TYPE AOS_IAM_NODES AOS_IAM_HOSTNAMES"
 
 python do_update_config() {
     import json

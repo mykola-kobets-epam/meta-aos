@@ -1,6 +1,6 @@
 SUMMARY = "vim layer"
 
-require recipes-aos-layers/base-layer/base-layer.inc
+require recipes-aos-layers/aos-base-layer/aos-base-layer.inc
 
 AOS_LAYER_FEATURES += " \
     vim \
@@ -13,4 +13,4 @@ AOS_LAYER_WHITEOUTS += " \
     /usr/share/applications/vim.desktop \
 "
 
-AOS_LAYER_VERSION = "1"
+AOS_LAYER_VERSION = "1.0.0"

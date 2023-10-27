@@ -1,6 +1,6 @@
 SUMMARY = "python libs layer"
 
-require recipes-aos-layers/base-layer/base-layer.inc
+require recipes-aos-layers/aos-base-layer/aos-base-layer.inc
 
 AOS_LAYER_FEATURES += " \
     python3-compression \
@@ -11,6 +11,7 @@ AOS_LAYER_FEATURES += " \
     python3-six \
     python3-threading \
     python3-websocket-client \
+    python3-requests \
 "
 
-AOS_LAYER_VERSION = "1"
+AOS_LAYER_VERSION = "1.0.0"

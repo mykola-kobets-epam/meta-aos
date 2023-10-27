@@ -6,7 +6,8 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "main"
-SRCREV = "8483d0c814139a6773440a3f4e1d6887e6a787ac"
+SRCREV = "1c37bd19338de9450b35e522c4cf3cbd5be5b48a"
+
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
 SRC_URI += " \
@@ -49,15 +50,19 @@ RDEPENDS:${PN}:append:aos-secondary-node = " \
 "
 
 RRECOMMENDS:${PN} += " \
+    kernel-module-8021q \
     kernel-module-bridge \
+    kernel-module-ifb \
     kernel-module-nf-conncount \
     kernel-module-nfnetlink \
     kernel-module-overlay \
     kernel-module-veth \
+    kernel-module-vxlan \
     kernel-module-xt-addrtype \
     kernel-module-xt-comment \
     kernel-module-xt-conntrack \
     kernel-module-xt-masquerade \
+    kernel-module-xt-tcpudp \
 "
 
 RDEPENDS:${PN}-dev += " bash make"

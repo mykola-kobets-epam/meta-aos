@@ -5,17 +5,29 @@ LICENSE = "Apache-2.0"
 
 inherit ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux-image', '', d)}
 
+DEPENDS += "e2fsprogs-native"
+
 # Enable RO rootfs
 IMAGE_FEATURES:append = " read-only-rootfs"
 
 # Set rootfs version
 
-ROOTFS_POSTPROCESS_COMMAND:append = "set_rootfs_version;"
+ROOTFS_POSTPROCESS_COMMAND:append = "set_rootfs_version; create_boot_version;"
 
 set_rootfs_version() {
-    install -d ${IMAGE_ROOTFS}/etc/aos
+    if [ -z "$AOS_ROOTFS_IMAGE_VERSION" ]; then
+        install -d ${IMAGE_ROOTFS}/etc/aos
 
-    echo "VERSION=\"${AOS_ROOTFS_IMAGE_VERSION}\"" > ${IMAGE_ROOTFS}/etc/aos/version
+        echo "VERSION=\"${AOS_ROOTFS_IMAGE_VERSION}\"" > ${IMAGE_ROOTFS}/etc/aos/version
+    fi
+}
+
+create_boot_version() {
+    if [ -z "$AOS_BOOT_IMAGE_VERSION" ]; then
+        install -d ${DEPLOY_DIR_IMAGE}/aos/boot
+
+        echo "VERSION=\"${AOS_BOOT_IMAGE_VERSION}\"" > ${DEPLOY_DIR_IMAGE}/aos/boot/version
+    fi
 }
 
 # Set unit model
@@ -40,19 +52,40 @@ do_create_shared_links[cleandirs] = "${AOS_SHARED_RESOURCE_DIR}"
 AOS_BUILD_WIC_DIR = "${WORKDIR}/build-wic"
 
 # We need to have shared resources in work-shared dir for the layer functionality.
-# Creating symlink IMAGE_ROOTFS and BUILD_WIC_DIR to work-shared to get an access to them by
-# layers and update
 do_create_shared_links() {
     if [ -d ${IMAGE_ROOTFS} ]; then
         ln -r -s ${IMAGE_ROOTFS} ${AOS_SHARED_RESOURCE_DIR}/rootfs
     fi
-
-    if [ -d ${AOS_BUILD_WIC_DIR} ]; then
-        ln -r -s ${AOS_BUILD_WIC_DIR} ${AOS_SHARED_RESOURCE_DIR}/build-wic
-    fi
 }
 
 addtask create_shared_links after do_image_qa do_image_wic before do_image_complete
+
+# Create RW partitions
+
+AOS_VAR_PART_SIZE ?= "524288"
+AOS_HOME_PART_SIZE ?= ""
+
+mk_dir_fs() {
+    local dir="$1"
+    local size="$2"
+    local out_file="${DEPLOY_DIR_IMAGE}/${IMAGE_BASENAME}-${MACHINE}-${dir}.ext4"
+
+    dd if=/dev/zero of=${out_file} count=${size} bs=1024
+    mkfs.ext4 ${out_file} -d ${IMAGE_ROOTFS}/${dir}
+    fsck.ext4 -pvfD ${out_file} || [ $? -le 3 ]
+}
+
+fakeroot do_create_rw_parts() {
+    if [ ! -z "${AOS_VAR_PART_SIZE}" ]; then
+        mk_dir_fs "var" "${AOS_VAR_PART_SIZE}"
+    fi
+
+    if [ ! -z "${AOS_HOME_PART_SIZE}" ]; then
+        mk_dir_fs "home" "${AOS_HOME_PART_SIZE}"
+    fi
+}
+
+addtask create_rw_parts after do_image_qa do_image_wic before do_image_complete
 
 # Packages
 
@@ -63,7 +96,7 @@ IMAGE_INSTALL:append = " \
     ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', ' \
         packagegroup-selinux-minimal \
         packagegroup-selinux-policycoreutils \
-        aos-selinux-autorelabel \
+        selinux-autorelabel \
         ', '', d)} \
 "
 

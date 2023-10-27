@@ -8,7 +8,8 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "main"
-SRCREV = "aeb3b8d4bd819033e5d1d0b8f7803d2be7b5f218"
+SRCREV = "a208a9c58e2ec4a4f254554dc3ffa556be16eb10"
+
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
 SRC_URI += " \
@@ -104,7 +105,7 @@ python do_update_config() {
         json.dump(data, f, indent=4)
 }
 
-do_compile[vardeps] += "AOS_UM_COMPONENT_PREFIX"
+do_fetch[vardeps] += "AOS_UM_COMPONENT_PREFIX"
 
 do_install:append() {
     install -d ${D}${sysconfdir}/aos

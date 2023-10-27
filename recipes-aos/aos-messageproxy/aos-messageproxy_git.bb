@@ -6,7 +6,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
 BRANCH = "main"
-SRCREV = "505a3919b5cd0c9fa76b3c0599adc7859b9b651e"
+SRCREV = "8bfbf47d39ea7c8230cf9735ec9a9ad72b36652b"
 
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
@@ -72,8 +72,8 @@ do_install:append() {
 }
 
 do_install:append:aos-main-node() {
-    install -d ${D}${sysconfdir}/systemd/system/aos-servicemanager.service.d
-    install -m 0644 ${WORKDIR}/aos-cm-service.conf ${D}${sysconfdir}/systemd/system/aos-servicemanager.service.d/10-aos-cm-service.conf
+    install -d ${D}${sysconfdir}/systemd/system/aos-messageproxy.service.d
+    install -m 0644 ${WORKDIR}/aos-cm-service.conf ${D}${sysconfdir}/systemd/system/aos-messageproxy.service.d/10-aos-cm-service.conf
 }
 
 addtask update_config after do_install before do_package
