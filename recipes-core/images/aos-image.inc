@@ -45,11 +45,9 @@ set_unit_model() {
 
 # Shared links
 
-AOS_SHARED_RESOURCE_DIR = "${TMPDIR}/work-shared/${IMAGE_BASENAME}-${MACHINE}"
+AOS_SHARED_RESOURCE_DIR = "${TMPDIR}/work-shared/${PN}-${MACHINE}"
 
 do_create_shared_links[cleandirs] = "${AOS_SHARED_RESOURCE_DIR}"
-
-AOS_BUILD_WIC_DIR = "${WORKDIR}/build-wic"
 
 # We need to have shared resources in work-shared dir for the layer functionality.
 do_create_shared_links() {

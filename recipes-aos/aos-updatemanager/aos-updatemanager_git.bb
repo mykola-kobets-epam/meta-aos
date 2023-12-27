@@ -7,8 +7,8 @@ GO_IMPORT = "github.com/aoscloud/aos_updatemanager"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-BRANCH = "main"
-SRCREV = "a208a9c58e2ec4a4f254554dc3ffa556be16eb10"
+BRANCH = "develop"
+SRCREV = "${AUTOREV}"
 
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
@@ -99,13 +99,14 @@ python do_update_config() {
     comp_prefix = d.getVar("AOS_UM_COMPONENT_PREFIX")
 
     for update_module in data["UpdateModules"]:
-        update_module["ID"] = comp_prefix+update_module["ID"]
+        if not update_module["ID"].startswith(comp_prefix):
+            update_module["ID"] = comp_prefix+update_module["ID"]
 
     with open(file_name, "w") as f:
         json.dump(data, f, indent=4)
 }
 
-do_fetch[vardeps] += "AOS_UM_COMPONENT_PREFIX"
+do_compile[vardeps] += "AOS_UM_COMPONENT_PREFIX"
 
 do_install:append() {
     install -d ${D}${sysconfdir}/aos
