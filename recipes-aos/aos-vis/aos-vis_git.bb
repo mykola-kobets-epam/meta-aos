@@ -2,13 +2,13 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 DESCRIPTION = "AOS VIS"
 
-GO_IMPORT = "github.com/aoscloud/aos_vis"
+GO_IMPORT = "github.com/aosedge/aos_vis"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 BRANCH = "main"
-SRCREV = "c90705782c235f4e7d727c001d727567d19e744e"
+SRCREV = "f781b61426b365857dfea2788cc6ae63d4bae55b"
 
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
