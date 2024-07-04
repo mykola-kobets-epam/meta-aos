@@ -5,8 +5,8 @@ GO_IMPORT = "github.com/aosedge/aos_communicationmanager"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-BRANCH = "main"
-SRCREV = "e8bb31b9bdda94a7e0bf3d5c24d256c904b51b70"
+BRANCH = "develop"
+SRCREV = "${AUTOREV}"
 
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
