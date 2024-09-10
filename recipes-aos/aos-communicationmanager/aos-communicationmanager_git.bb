@@ -5,8 +5,8 @@ GO_IMPORT = "github.com/aosedge/aos_communicationmanager"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-BRANCH = "main"
-SRCREV = "e8bb31b9bdda94a7e0bf3d5c24d256c904b51b70"
+BRANCH = "develop"
+SRCREV = "${AUTOREV}"
 
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
@@ -33,17 +33,8 @@ DEPENDS = "systemd"
 
 RDEPENDS:${PN} += " \
     aos-rootca \
+    nfs-exports \
 "
-
-python __anonymous() {
-    node_id = d.getVar("AOS_NODE_ID")
-    sm_nodes = d.getVar("AOS_SM_NODES").split()
-
-    # if we have remote nodes, add nfs-exports
-
-    if len(sm_nodes) > 1 or (len(sm_nodes) == 1 and node_id not in sm_nodes):
-        d.appendVar("RDEPENDS:"+d.getVar('PN'), "nfs-exports")
-}
 
 RDEPENDS:${PN}-dev += " bash make"
 RDEPENDS:${PN}-staticdev += " bash make"
@@ -65,9 +56,6 @@ python do_update_config() {
     with open(file_name) as f:
         data = json.load(f)
 
-    node_id = d.getVar("AOS_NODE_ID")
-    sm_nodes = d.getVar("AOS_SM_NODES").split()
-    um_nodes = d.getVar("AOS_UM_NODES").split()
     node_hostname = d.getVar("AOS_NODE_HOSTNAME")
  
     # Update IAM servers
@@ -75,34 +63,15 @@ python do_update_config() {
     data["IAMProtectedServerURL"]= node_hostname+":8089"
     data["IAMPublicServerURL"] = node_hostname+":8090"
 
+    main_node_hostname = d.getVar("AOS_MAIN_NODE_HOSTNAME")
+
     # Update SM controller
-
     sm_controller = data["SMController"]
-
-    if len(sm_nodes) > 1 or (len(sm_nodes) == 1 and node_id not in sm_nodes):
-        sm_controller["FileServerURL"] = node_hostname+":8094" 
- 
-    if len(sm_nodes) > 0:
-        sm_controller["NodeIDs"] = []
-
-    for sm in sm_nodes:
-        sm_controller["NodeIDs"].append(sm)
+    sm_controller["FileServerURL"] = main_node_hostname+":8094"
 
     # Update CM controller
-
     um_controller = data["UMController"]
-
-    if len(um_nodes) > 1 or (len(um_nodes) == 1 and node_id not in um_nodes):
-        um_controller["FileServerURL"] = node_hostname+":8092" 
-
-    if len(um_nodes) > 0:
-        um_controller["UMClients"] = []
-
-    for um in um_nodes:
-        if um == node_id:
-            um_controller["UMClients"].append({"UMID": um, "IsLocal": True, "Priority": 1})
-        else:
-            um_controller["UMClients"].append({"UMID": um})
+    um_controller["FileServerURL"] = main_node_hostname+":8092"
 
     with open(file_name, "w") as f:
         json.dump(data, f, indent=4)

@@ -5,8 +5,8 @@ GO_IMPORT = "github.com/aosedge/aos_servicemanager"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-BRANCH = "main"
-SRCREV = "0b28fe12d3a5246f045da9b0c670d1d7e048b7d9"
+BRANCH = "develop"
+SRCREV = "${AUTOREV}"
 
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
@@ -23,7 +23,6 @@ inherit go goarch systemd
 SYSTEMD_SERVICE:${PN} = "aos-servicemanager.service"
 
 MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/aos/sm/migration"
-AOS_RUNNER ??= "crun"
 
 FILES:${PN} += " \
     ${sysconfdir} \

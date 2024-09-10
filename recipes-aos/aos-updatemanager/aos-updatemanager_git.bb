@@ -7,8 +7,8 @@ GO_IMPORT = "github.com/aosedge/aos_updatemanager"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-BRANCH = "main"
-SRCREV = "f55091ae70a6326a3525c548c36d55415406b4e9"
+BRANCH = "develop"
+SRCREV = "${AUTOREV}"
 
 SRC_URI = "git://${GO_IMPORT}.git;branch=${BRANCH};protocol=https"
 
@@ -94,13 +94,13 @@ python do_update_config() {
 
     data["CMServerURL"] = main_node_hostname+":8091"
 
-    # Update component IDs
+    # Update component Types
 
     comp_prefix = d.getVar("AOS_UM_COMPONENT_PREFIX")
 
     for update_module in data["UpdateModules"]:
-        if not update_module["ID"].startswith(comp_prefix):
-            update_module["ID"] = comp_prefix+update_module["ID"]
+        if not update_module["Type"].startswith(comp_prefix):
+            update_module["Type"] = comp_prefix+update_module["Type"]
 
     with open(file_name, "w") as f:
         json.dump(data, f, indent=4)
