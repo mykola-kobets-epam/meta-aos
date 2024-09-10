@@ -12,6 +12,7 @@ SRC_URI = " \
     git://github.com/aosedge/telemetry_emulator.git;protocol=https;branch=${BRANCH} \
     file://telemetry-emulator.service \
 "
+
 S = "${WORKDIR}/git"
 
 RDEPENDS:${PN} = " \
