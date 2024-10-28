@@ -99,6 +99,7 @@ IMAGE_INSTALL:append = " \
         packagegroup-selinux-policycoreutils \
         selinux-autorelabel \
         ', '', d)} \
+    ${@'aos-messageproxy' if bb.utils.to_boolean(d.getVar('AOS_INCLUDE_MESSAGEPROXY')) else ''}\
 "
 
 IMAGE_INSTALL:append:aos-main-node = " \
