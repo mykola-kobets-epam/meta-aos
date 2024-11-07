@@ -2,10 +2,7 @@
 
 COMMAND="$1"
 
-deprovision() {
-    echo "Restore unprovisioned flag"
-    rm /var/aos/.provisionstate -f
-
+clear_disks() {
     echo "Remove IAM DB and PKCS11 storage"
     rm /var/aos/iam -rf
     /opt/aos/clearhsm.sh
@@ -24,7 +21,8 @@ deprovision_async() {
         # all services really stopped.
         systemctl stop -- $(systemctl show -p Wants aos.target | cut -d= -f2)
 
-        deprovision | systemd-cat
+        echo "Restore unprovisioned flag" | systemd-cat
+        rm /var/aos/.provisionstate -f
 
         systemctl start aos.target
     } > /dev/null 2>&1 &
@@ -36,6 +34,6 @@ async)
     ;;
 
 *)
-    deprovision
+    clear_disks
     ;;
 esac
