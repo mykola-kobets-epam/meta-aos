@@ -36,6 +36,11 @@ fatal() {
     exit 1
 }
 
+cleanup() {
+    echo "Start systemd-udev-trigger service"
+    systemctl start systemd-udev-trigger
+}
+
 get_mount_point() {
     while read -r device mount_point _; do
         # skip comments
@@ -183,6 +188,11 @@ done
 
 COMMAND="$1"
 AOS_GROUP="aosvg"
+
+echo "Stop systemd-udev-trigger service"
+systemctl stop systemd-udev-trigger
+
+trap cleanup EXIT ERR INT
 
 case "$COMMAND" in
 create)
