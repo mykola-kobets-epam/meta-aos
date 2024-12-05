@@ -28,8 +28,11 @@ inherit autotools pkgconfig cmake systemd
 
 SYSTEMD_SERVICE:${PN} = "aos-iamanager.service aos-iamanager-provisioning.service"
 
+MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/aos/iam/migration"
+
 FILES:${PN} += " \
     ${sysconfdir} \
+    ${MIGRATION_SCRIPTS_PATH} \
 "
 
 RDEPENDS:${PN} += " \
@@ -94,6 +97,12 @@ do_install:append() {
 
     install -d ${D}${sysconfdir}/systemd/system/aos.target.d
     install -m 0644 ${WORKDIR}/aos-target.conf ${D}${sysconfdir}/systemd/system/aos.target.d/${PN}.conf
+
+    install -d ${D}${MIGRATION_SCRIPTS_PATH}
+    source_migration_path="/src/database/migration"
+    if [ -d ${S}${source_migration_path} ]; then
+        install -m 0644 ${S}${source_migration_path}/* ${D}${MIGRATION_SCRIPTS_PATH}
+    fi
 }
 
 addtask update_config after do_install before do_package
