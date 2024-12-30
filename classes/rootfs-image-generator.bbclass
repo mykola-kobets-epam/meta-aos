@@ -52,24 +52,36 @@ create_incremental_update() {
 
     ostree --repo=${AOS_ROOTFS_OSTREE_REPO} diff ${AOS_ROOTFS_REF_VERSION} ${AOS_ROOTFS_IMAGE_VERSION} |
     while read -r item; do
-        action=${item%% *}
-        item=${item##* }
+        action="${item%% *}"
+        item="${item#* }"
+        item="${item#"${item%%[! ]*}"}"
+
+        bbnote "${action} ${item}"
+
+        src="${AOS_ROOTFS_SOURCE_DIR}${item}"
+        dst="${ROOTFS_DIFF_DIR}${item}"
 
         if [ ${action} = "A" ] || [ ${action} = "M" ]; then
-            if [ -d ${AOS_ROOTFS_SOURCE_DIR}${item} ]; then
-                mkdir -p ${ROOTFS_DIFF_DIR}${item}
+            if [ -L "${src}" ] && [ -d "${src}" ]; then
+                cp -a "${src}" "${dst}"
+            elif [ -d "${src}" ]; then
+                mkdir -p "${dst}"
             else
-                mkdir -p $(dirname ${ROOTFS_DIFF_DIR}${item})
-                cp -a ${AOS_ROOTFS_SOURCE_DIR}${item} ${ROOTFS_DIFF_DIR}${item}
+                mkdir -p "$(dirname ${dst})"
+                cp -a "${src}" "${dst}"
             fi
         elif [ ${action} = "D" ]; then
-            mkdir -p $(dirname ${ROOTFS_DIFF_DIR}${item})
-            mknod ${ROOTFS_DIFF_DIR}${item} c 0 0 
+            mkdir -p "$(dirname ${dst})"
+            mknod "${dst}" c 0 0 
         fi
     done
 
     if [ ! "$(ls -A ${ROOTFS_DIFF_DIR})" ]; then
         bbfatal "incremental roofs update is empty"
+    fi
+
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'true', 'false', d)}; then
+        set_selinux_context "${ROOTFS_DIFF_DIR}" "${AOS_ROOTFS_SOURCE_DIR}"
     fi
 
     mksquashfs ${ROOTFS_DIFF_DIR} ${AOS_ROOTFS_IMAGE_FILE} \
@@ -78,18 +90,23 @@ create_incremental_update() {
 }
 
 set_selinux_context() {
-    ROOTFS_FULL_PATH=$(realpath ${AOS_ROOTFS_SOURCE_DIR})
-    setfiles -m -r ${ROOTFS_FULL_PATH} ${ROOTFS_FULL_PATH}/etc/selinux/aos/contexts/files/file_contexts ${ROOTFS_FULL_PATH}
+    target_dir="$1"
+    rootfs_dir="$2"
+
+    target_dir_full_path=$(realpath "$target_dir")
+    rootfs_full_path=$(realpath "$rootfs_dir")
+
+    setfiles -m -r "${target_dir_full_path}" \
+    "${rootfs_full_path}/etc/selinux/aos/contexts/files/file_contexts" "${target_dir_full_path}"
 }
 
 fakeroot do_create_rootfs_image() {
-
     if [ ! -d ${AOS_ROOTFS_OSTREE_REPO}/refs ]; then
         init_ostree_repo
     fi
 
     if ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'true', 'false', d)}; then
-        set_selinux_context
+        set_selinux_context "${AOS_ROOTFS_SOURCE_DIR}" "${AOS_ROOTFS_SOURCE_DIR}"
     fi
 
     ostree_commit

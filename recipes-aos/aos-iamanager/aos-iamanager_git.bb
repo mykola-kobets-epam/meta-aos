@@ -1,3 +1,6 @@
+FILESEXTRAPATHS:prepend:aos-main-node := "${THISDIR}/files/main:"
+FILESEXTRAPATHS:prepend:aos-secondary-node := "${THISDIR}/files/secondary:"
+
 DESCRIPTION = "AOS Identity and Access Manager CPP"
 
 LICENSE = "Apache-2.0"
@@ -6,13 +9,14 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 BRANCH = "main"
 SRCREV = "a636b224d118cfb7dfb473ca98f3e5c634a62dc5"
 
-SRC_URI = "git://github.com/aosedge/aos_core_iam_cpp.git;protocol=https;branch=${BRANCH}"
+SRC_URI = "gitsm://github.com/aosedge/aos_core_iam_cpp.git;protocol=https;branch=${BRANCH}"
 
 SRC_URI += " \
     file://aos_iamanager.cfg \
     file://aos-iamanager.service \
     file://aos-iamanager-provisioning.service \
     file://aos-target.conf \
+    file://aos-dirs-service.conf \
 "
 
 DEPENDS += "poco systemd grpc grpc-native protobuf-native protobuf openssl"
@@ -24,8 +28,11 @@ inherit autotools pkgconfig cmake systemd
 
 SYSTEMD_SERVICE:${PN} = "aos-iamanager.service aos-iamanager-provisioning.service"
 
+MIGRATION_SCRIPTS_PATH = "${base_prefix}/usr/share/aos/iam/migration"
+
 FILES:${PN} += " \
     ${sysconfdir} \
+    ${MIGRATION_SCRIPTS_PATH} \
 "
 
 RDEPENDS:${PN} += " \
@@ -38,7 +45,7 @@ S = "${WORKDIR}/git"
 do_compile[network] = "1"
 do_configure[network] =  "1"
 
-do_fetch[vardeps] += "AOS_MAIN_NODE_HOSTNAME AOS_NODE_HOSTNAME AOS_NODE_TYPE AOS_RUNNER"
+do_fetch[vardeps] += "AOS_MAIN_NODE AOS_MAIN_NODE_HOSTNAME AOS_NODE_HOSTNAME AOS_NODE_TYPE AOS_RUNNER"
 
 python do_update_config() {
     import json
@@ -60,11 +67,10 @@ python do_update_config() {
 
     data["NodeInfo"] = node_info
 
-    node_host_name = d.getVar("AOS_NODE_HOSTNAME")
     main_node_host_name = d.getVar("AOS_MAIN_NODE_HOSTNAME")
 
     # Set main IAM server URLs for secondary IAM nodes
-    if node_host_name != main_node_host_name:
+    if not d.getVar("AOS_MAIN_NODE") or d.getVar("AOS_MAIN_NODE") == "0":
         data["MainIAMPublicServerURL"] = main_node_host_name+":8090"
         data["MainIAMProtectedServerURL"] = main_node_host_name+":8089"
 
@@ -86,8 +92,17 @@ do_install:append() {
     install -m 0644 ${WORKDIR}/aos-iamanager.service ${D}${systemd_system_unitdir}
     install -m 0644 ${WORKDIR}/aos-iamanager-provisioning.service ${D}${systemd_system_unitdir}
 
+    install -d ${D}${sysconfdir}/systemd/system/aos-iamanager-provisioning.service.d
+    install -m 0644 ${WORKDIR}/aos-dirs-service.conf ${D}${sysconfdir}/systemd/system/aos-iamanager-provisioning.service.d/20-aos-dirs-service.conf
+
     install -d ${D}${sysconfdir}/systemd/system/aos.target.d
     install -m 0644 ${WORKDIR}/aos-target.conf ${D}${sysconfdir}/systemd/system/aos.target.d/${PN}.conf
+
+    install -d ${D}${MIGRATION_SCRIPTS_PATH}
+    source_migration_path="/src/database/migration"
+    if [ -d ${S}${source_migration_path} ]; then
+        install -m 0644 ${S}${source_migration_path}/* ${D}${MIGRATION_SCRIPTS_PATH}
+    fi
 }
 
 addtask update_config after do_install before do_package

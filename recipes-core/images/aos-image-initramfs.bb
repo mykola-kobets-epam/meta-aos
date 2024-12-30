@@ -9,10 +9,13 @@ AOS_INITRAMFS_SCRIPTS ?= " \
     initramfs-module-vardir \
 "
 
-RRECOMMENDS${PN} = " \
+RRECOMMENDS:${PN} = " \
     kernel-module-overlay \
     kernel-module-squashfs \
 "
+
+# Don't allow the initramfs to contain a kernel
+PACKAGE_EXCLUDE = "kernel-image-*"
 
 PACKAGE_INSTALL = "${AOS_INITRAMFS_SCRIPTS} ${VIRTUAL-RUNTIME_base-utils} udev"
 

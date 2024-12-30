@@ -12,6 +12,8 @@ IMAGE_FEATURES:append = " read-only-rootfs"
 
 # Set rootfs version
 
+do_rootfs[vardeps] += "AOS_ROOTFS_IMAGE_VERSION AOS_BOOT_IMAGE_VERSION"
+
 ROOTFS_POSTPROCESS_COMMAND:append = "set_rootfs_version; create_boot_version;"
 
 set_rootfs_version() {
@@ -105,4 +107,12 @@ IMAGE_INSTALL:append:aos-main-node = " \
     aos-vis \
 "
 
-TOOLCHAIN_HOST_TASK:append = " nativesdk-protobuf nativesdk-protobuf-dev nativesdk-grpc nativesdk-grpc-compiler"
+TOOLCHAIN_HOST_TASK:append = " \
+    nativesdk-protobuf \
+    nativesdk-protobuf-dev \
+    nativesdk-grpc \
+    nativesdk-grpc-dev \
+    nativesdk-grpc-compiler \
+"
+
+TOOLCHAIN_TARGET_TASK:append = " protobuf-staticdev"

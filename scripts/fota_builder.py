@@ -112,10 +112,34 @@ class FotaBuilder:
         if var:
             metadata[varname] = var.as_str
 
+    def _add_runtime_dependencies(self, conf, metadata):
+        runtime_deps = conf.get("runtimeDependencies", [])
+
+        if len(runtime_deps) == 0:
+            return
+
+        meta_dependencies = []
+
+        for dependency in runtime_deps:
+            if len(dependency) == 0:
+                continue
+
+            meta_dependency = {
+                "type": dependency["componentType"].as_str,
+                "requiredVersion": dependency.get("requiredVersion", "").as_str,
+                "minVersion": dependency.get("minVersion", "").as_str,
+                "maxVersion": dependency.get("maxVersion", "").as_str,
+            }
+
+            # Add dependency with non-empty values only
+            meta_dependencies.append({k: v for k, v in meta_dependency.items() if v})
+
+        metadata["runtimeDependencies"] = meta_dependencies
+
     def _create_component_metadata(self, component, conf):
         metadata = {
             "type": conf.get("componentType", component).as_str,
-            "version": conf["vendorVersion"].as_str,
+            "version": conf["version"].as_str,
         }
         metadata["fileName"] = conf.get(
             "fileName", f'{metadata["type"]}-{metadata["version"]}.img'
@@ -127,6 +151,8 @@ class FotaBuilder:
         self._update_metadata_var(conf, "description", metadata)
         self._update_metadata_var(conf, "annotations", metadata)
         self._update_metadata_var(conf, "downloadTTL", metadata)
+
+        self._add_runtime_dependencies(conf, metadata)
 
         return metadata
 
