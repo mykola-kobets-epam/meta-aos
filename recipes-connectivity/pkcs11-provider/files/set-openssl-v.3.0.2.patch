@@ -1,0 +1,74 @@
+diff --git a/BUILD.md b/BUILD.md
+index 41e7858..4624934 100644
+--- a/BUILD.md
++++ b/BUILD.md
+@@ -1,7 +1,7 @@
+ ## Build Prerequisites
+ 
+ This package requires the following:
+-- OpenSSL 3.0.7+ libraries and development headers
++- OpenSSL 3.0.2+ libraries and development headers
+ - OpenSSL tools (for testing)
+ - NSS softoken, tools and development headers (for testing)
+ - a C compiler that supports at least C11 semantics
+diff --git a/meson.build b/meson.build
+index a1836ec..1ef57e1 100644
+--- a/meson.build
++++ b/meson.build
+@@ -45,9 +45,9 @@ conf.set_quoted('PACKAGE_NAME', meson.project_name())
+ conf.set('PACKAGE_MAJOR', major_version)
+ conf.set('PACKAGE_MINOR', minor_version)
+ 
+-libcrypto = dependency('libcrypto', version: '>= 3.0.7')
++libcrypto = dependency('libcrypto', version: '>= 3.0.2')
+ provider_path = libcrypto.get_variable(pkgconfig: 'modulesdir')
+-libssl = dependency('libssl', version: '>= 3.0.7')
++libssl = dependency('libssl', version: '>= 3.0.2')
+ 
+ host_system = host_machine.system()
+ if host_system == 'windows'
+@@ -87,4 +87,3 @@ configure_file(output: 'config.h', configuration: conf)
+ subdir('src')
+ subdir('docs')
+ subdir('tests')
+-
+diff --git a/packaging/pkcs11-provider.spec b/packaging/pkcs11-provider.spec
+index b6f524e..1f3c771 100644
+--- a/packaging/pkcs11-provider.spec
++++ b/packaging/pkcs11-provider.spec
+@@ -13,7 +13,7 @@ Source1:       %{url}/releases/download/v%{version}/%{name}-%{version}.tar.xz.as
+ Source2:       https://people.redhat.com/~ssorce/simo_redhat.asc
+ %endif
+ 
+-BuildRequires: openssl-devel >= 3.0.7
++BuildRequires: openssl-devel >= 3.0.2
+ BuildRequires: gcc
+ BuildRequires: meson
+ %if %{with gpgcheck}
+diff --git a/src/interface.gen.c b/src/interface.gen.c
+index 0ccbeaa..88cc80b 100644
+--- a/src/interface.gen.c
++++ b/src/interface.gen.c
+@@ -332,8 +332,7 @@ CK_RV p11prov_GetOperationState(P11PROV_CTX *ctx, CK_SESSION_HANDLE hSession,
+     ret = intf->GetOperationState(hSession, pOperationState,
+                                   pulOperationStateLen);
+     if (ret != CKR_OK) {
+-        P11PROV_raise(ctx, ret,
+-                      "Error returned by C_"
++        P11PROV_debug("Error returned by C_"
+                       "GetOperationState");
+     }
+     return ret;
+diff --git a/src/objects.c b/src/objects.c
+index 5b5b09e..53ad0a2 100644
+--- a/src/objects.c
++++ b/src/objects.c
+@@ -2589,7 +2589,7 @@ static CK_RV prep_ec_find(P11PROV_CTX *ctx, const OSSL_PARAM params[],
+      * Convert from compressed to uncompressed if necessary
+      */
+     if (((char *)p->data)[0] == '\x02' || ((char *)p->data)[0] == '\x03') {
+-        P11PROV_debug("OpenSSL 3.0.7 BUG - received compressed EC public key");
++        P11PROV_debug("OpenSSL 3.0.2 BUG - received compressed EC public key");
+         pub_key[0].key = OSSL_PKEY_PARAM_PUB_KEY;
+         pub_key[0].data_type = p->data_type;
+         pub_key[0].data = pub_data;

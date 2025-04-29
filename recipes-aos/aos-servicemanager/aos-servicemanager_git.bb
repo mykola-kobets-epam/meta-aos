@@ -3,10 +3,10 @@ DESCRIPTION = "AOS Service Manager"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
-BRANCH = "develop"
+BRANCH = "openssl-provider-impl"
 SRCREV = "${AUTOREV}"
 
-SRC_URI = "gitsm://github.com/aosedge/aos_core_sm_cpp.git;protocol=https;branch=${BRANCH}"
+SRC_URI = "gitsm://github.com/mykola-kobets-epam/aos_core_sm_cpp.git;protocol=https;branch=${BRANCH}"
 
 SRC_URI += " \
     file://aos_servicemanager.cfg \
@@ -34,7 +34,7 @@ DEPENDS = "grpc grpc-native poco protobuf-native systemd curl libnl"
 
 do_configure[network] =  "1"
 
-EXTRA_OECMAKE += "-DFETCHCONTENT_FULLY_DISCONNECTED=OFF"
+EXTRA_OECMAKE += "-DFETCHCONTENT_FULLY_DISCONNECTED=OFF -DWITH_OPENSSL=ON -DWITH_MBEDTLS=OFF"
 
 VIRTUAL_RUNC = "${@bb.utils.contains('LAYERSERIES_CORENAMES', 'dunfell', 'virtual/runc', 'virtual-runc', d)}"
 
