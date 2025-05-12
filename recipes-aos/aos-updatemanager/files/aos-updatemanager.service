@@ -9,6 +9,7 @@ PartOf=aos.target
 
 [Service]
 Type=notify
+Environment="GRPC_GO_LOG_VERBOSITY_LEVEL=99" "GRPC_GO_LOG_SEVERITY_LEVEL=info"
 ExecStart=/usr/bin/aos_updatemanager -c /etc/aos/aos_updatemanager.cfg -v debug -j
 # It is important to do not restart UM on normal exit. This case is used when system
 # reboot scheduled: UM returns exit code 0.

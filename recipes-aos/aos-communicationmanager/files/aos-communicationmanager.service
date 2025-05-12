@@ -7,6 +7,7 @@ PartOf=aos.target
 
 [Service]
 Type=notify
+Environment="GRPC_GO_LOG_VERBOSITY_LEVEL=99" "GRPC_GO_LOG_SEVERITY_LEVEL=info"
 ExecStart=/usr/bin/aos_communicationmanager -c /etc/aos/aos_communicationmanager.cfg -v debug -j
 Restart=always
 RestartSec=10

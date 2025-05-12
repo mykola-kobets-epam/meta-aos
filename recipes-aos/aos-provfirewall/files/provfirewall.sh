@@ -7,6 +7,6 @@ if [ -z "$GATEWAY" ]; then
     exit 1
 fi
 
-iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A INPUT -s ${GATEWAY}/32 -p tcp -m tcp --dport 22 -j ACCEPT
-iptables -A INPUT -s ${GATEWAY}/32 -j DROP
+# iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+# iptables -A INPUT -s ${GATEWAY}/32 -p tcp -m tcp --dport 22 -j ACCEPT
+# iptables -A INPUT -s ${GATEWAY}/32 -j DROP
